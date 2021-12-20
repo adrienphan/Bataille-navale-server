@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
+using ConsoleApplication1;
 
 namespace Bataille_navale
 {
@@ -48,22 +49,25 @@ namespace Bataille_navale
                     // Boucle sur le contenu envoyé.
                     while ((i = stream.Read(bytes, 0, bytes.Length)) != 0)
                     {
-                        // transcie les bytes envoyé en string.
+                        // transcrit les bytes envoyé en string.
                         data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
                         Console.WriteLine("Received: {0}", data);
 
-                        // Mise en majuscule du message reçu.
-                        data = data.ToUpper();
+                        for (int msgNumber = 0; msgNumber < 2; msgNumber++) {
+                            Console.WriteLine("Indiquez votre attaque");
+                            data = Console.ReadLine();
+                            //transcrit le string en bytes
+                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
 
-                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
-
-                        // renvoie le message.
-                        stream.Write(msg, 0, msg.Length);
-                        Console.WriteLine("Sent: {0}", data);
+                            // renvoie le message.
+                            stream.Write(msg, 0, msg.Length);
+                            Console.WriteLine("Sent: {0}", data);
+                        }
+                        
                     }
 
                     // Shutdown and end connection
-                    client.Close();
+                    //client.Close();
                 }
             }
             catch (SocketException e)

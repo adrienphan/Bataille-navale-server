@@ -4,6 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Net.Sockets;
 using System.Text.RegularExpressions;
+using Bataille_navale;
 
 namespace ConsoleApplication1
 {
@@ -13,6 +14,10 @@ namespace ConsoleApplication1
         public static int latitudeShot = 0;
         static void Main(string[] args)
         {
+            //Ouverture du serveur
+            Server.OpenServer();
+
+            //creation des bateaux
             string[,] battleMap = new string[10, 10];
             Dictionary<string, int> boats = new Dictionary<string, int>();
             boats.Add("carrier", 5);
@@ -55,38 +60,42 @@ namespace ConsoleApplication1
                 playerInput = Console.ReadLine();
 
 
-                try
+                void CoordCheck(string input)
                 {
-                    string linePosition = playerInput.Substring(0, 1/*EXCLU*/);
-                    string columnPosition = playerInput.Substring(1);
+                    try
+                    {
+                        string linePosition = input.Substring(0, 1/*EXCLU*/);
+                        string columnPosition = playerInput.Substring(1);
 
-                    // Verifier la validité de la ligne
-                    if (longitudeCheck.IsMatch(linePosition))
-                    {
-                        longitudeShot = lineCharacterToInt(playerInput[0]);
-                    }
-                    else
-                    {
-                        throw new Exception("La lettre de la ligne n'est pas valide");
-                    }
-                    // Verifier la validité de la colonne
-                    if (latitudeCheck.IsMatch(columnPosition)
-                        && int.Parse(columnPosition) > 0 && int.Parse(columnPosition) <= 10)
-                    {
-                        latitudeShot = int.Parse(columnPosition) - 1;
-                    }
-                    else
-                    {
-                        throw new Exception("Le chiffre de la colonne n'est pas valide");
-                    }
+                        // Verifier la validité de la ligne
+                        if (longitudeCheck.IsMatch(linePosition))
+                        {
+                            longitudeShot = lineCharacterToInt(playerInput[0]);
+                        }
+                        else
+                        {
+                            throw new Exception("La lettre de la ligne n'est pas valide");
+                        }
+                        // Verifier la validité de la colonne
+                        if (latitudeCheck.IsMatch(columnPosition)
+                            && int.Parse(columnPosition) > 0 && int.Parse(columnPosition) <= 10)
+                        {
+                            latitudeShot = int.Parse(columnPosition) - 1;
+                        }
+                        else
+                        {
+                            throw new Exception("Le chiffre de la colonne n'est pas valide");
+                        }
 
+                    }
+                    catch (Exception ex)
+                    {
+                        Console.WriteLine($"{ex.Message}");
+                    }
+                    Console.WriteLine($"{longitudeShot},{latitudeShot}");
                 }
-                catch (Exception ex)
-                {
-                    Console.WriteLine($"{ex.Message}");
-                    continue;
-                }
-                Console.WriteLine($"{longitudeShot},{latitudeShot}");
+                CoordCheck(playerInput);
+
 
                 // Attaque de l'adversaire
                 if (battleMap[longitudeShot, latitudeShot] == null)
