@@ -12,6 +12,50 @@ namespace ConsoleApplication1
     {
         public static int longitudeShot = 0;
         public static int latitudeShot = 0;
+        public static Regex longitudeCheck = new Regex(@"^[A-J]+$");
+        public static Regex latitudeCheck = new Regex(@"^[0-9]+$");
+        public static bool CoordCheck(string input)
+        {
+            try
+            {
+                string linePosition = input.Substring(0, 1/*EXCLU*/);
+                string columnPosition = input.Substring(1);
+                bool isLineValid = false;
+                bool isColumnValid = false;
+
+                // Verifier la validité de la ligne
+                if (longitudeCheck.IsMatch(linePosition))
+                {
+                    longitudeShot = lineCharacterToInt(input[0]);
+                    isLineValid = true;
+                }
+                else
+                {
+                    throw new Exception("La lettre de la ligne n'est pas valide");
+                }
+                // Verifier la validité de la colonne
+                if (latitudeCheck.IsMatch(columnPosition)
+                    && int.Parse(columnPosition) > 0 && int.Parse(columnPosition) <= 10)
+                {
+                    latitudeShot = int.Parse(columnPosition) - 1;
+                    isColumnValid = true;
+                }
+                else
+                {
+                    throw new Exception("Le chiffre de la colonne n'est pas valide");
+                }
+                if (isLineValid && isColumnValid)
+                {
+                    return true;
+                }
+                else return false;
+
+            }
+            catch (Exception ex)
+            {
+                Console.WriteLine($"{ex.Message}");
+            }
+        }
         static void Main(string[] args)
         {
             //Ouverture du serveur
@@ -51,8 +95,7 @@ namespace ConsoleApplication1
 
             // Input check and crunch
             string playerInput = "";
-            Regex longitudeCheck = new Regex(@"^[A-J]+$");
-            Regex latitudeCheck = new Regex(@"^[0-9]+$");
+            
 
             while (playerHealth > 0)
             {
@@ -60,40 +103,7 @@ namespace ConsoleApplication1
                 playerInput = Console.ReadLine();
 
 
-                void CoordCheck(string input)
-                {
-                    try
-                    {
-                        string linePosition = input.Substring(0, 1/*EXCLU*/);
-                        string columnPosition = playerInput.Substring(1);
-
-                        // Verifier la validité de la ligne
-                        if (longitudeCheck.IsMatch(linePosition))
-                        {
-                            longitudeShot = lineCharacterToInt(playerInput[0]);
-                        }
-                        else
-                        {
-                            throw new Exception("La lettre de la ligne n'est pas valide");
-                        }
-                        // Verifier la validité de la colonne
-                        if (latitudeCheck.IsMatch(columnPosition)
-                            && int.Parse(columnPosition) > 0 && int.Parse(columnPosition) <= 10)
-                        {
-                            latitudeShot = int.Parse(columnPosition) - 1;
-                        }
-                        else
-                        {
-                            throw new Exception("Le chiffre de la colonne n'est pas valide");
-                        }
-
-                    }
-                    catch (Exception ex)
-                    {
-                        Console.WriteLine($"{ex.Message}");
-                    }
-                    Console.WriteLine($"{longitudeShot},{latitudeShot}");
-                }
+                
                 CoordCheck(playerInput);
 
 

@@ -53,17 +53,30 @@ namespace Bataille_navale
                         data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
                         Console.WriteLine("Received: {0}", data);
 
-                        for (int msgNumber = 0; msgNumber < 2; msgNumber++) {
-                            Console.WriteLine("Indiquez votre attaque");
+                        //envoi du message
+                        Console.WriteLine("Résultat de l'attaque :");
+                        data = Console.ReadLine();
+                        //transcrit le string en bytes
+                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
+                        // renvoie le message.
+                        stream.Write(msg, 0, msg.Length);
+                        Console.WriteLine("Sent: {0}", data);
+                        
+                        //envoi du message
+                        Console.WriteLine("Indiquez votre attaque");
+                        bool isCoordValid = false;
+                        while (!isCoordValid)
+                        {
                             data = Console.ReadLine();
-                            //transcrit le string en bytes
-                            byte[] msg = System.Text.Encoding.ASCII.GetBytes(data);
-
-                            // renvoie le message.
-                            stream.Write(msg, 0, msg.Length);
-                            Console.WriteLine("Sent: {0}", data);
+                            isCoordValid = Program.CoordCheck(data);
                         }
                         
+                        //transcrit le string en bytes
+                        byte[] msg2 = System.Text.Encoding.ASCII.GetBytes(data);
+                        // renvoie le message.
+                        stream.Write(msg2, 0, msg2.Length);
+                        Console.WriteLine("Sent: {0}", data);
+
                     }
 
                     // Shutdown and end connection
