@@ -2,23 +2,24 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
-using System.Threading.Tasks;
+using System.Threading;
 using System.Net.Sockets;
 using System.Net;
 using ConsoleApplication1;
+using System.IO;
 
 namespace Bataille_navale
 {
     internal class Server
     {
-        public static void OpenServer()
+        public static async void OpenServer()
         {
             TcpListener server = null;
             try
             {
                 // Création des variables contenant le port et l'adresse IP que le server doit écouter.
                 Int32 port = 13000;
-                IPAddress localAddr = IPAddress.Parse("192.168.1.33");
+                IPAddress localAddr = IPAddress.Parse("127.0.0.1");
                 // Création d'un objet TcpListener avec en paramétre le port et l'adresse IP
                 server = new TcpListener(localAddr, port);
                 // Ouverture du serveur.
@@ -26,38 +27,44 @@ namespace Bataille_navale
                 // Création d'une variable bytes pour récupérer les données transmise et d'une variable string pour récupérer les données transcrit en string 
                 Byte[] bytes = new Byte[256];
                 String data = null;
+
+                // Reception de la requête demande client envoyé..
+                TcpClient client = server.AcceptTcpClient();
+                data = null;
+                // Lecture du contenu envoyé
+                NetworkStream stream = client.GetStream();
+                int i = 0;
+
+                bytes = new Byte[256];
+                data = "";
+                i = 0;
+
                 // Lancement de la boucle d'écoute 
-                while (true)
+                // Boucle sur de jeu. Commence par la lecture d'une attaque par le client
+                while (Program.playerHealth > 0)
                 {
-                    Console.Write("Waiting for a connection... ");
-                    // Reception de la requête demande client envoyé..
-                    TcpClient client = server.AcceptTcpClient();
-                    Console.WriteLine("Connected!");
-                    data = null;
-                    // Lecture du contenu envoyé
-                    NetworkStream stream = client.GetStream();
-                    int i = 0;
-                    // Boucle sur de jeu. Commence par la lecture d'une attaque par le client
-                    while (Program.playerHealth > 0)
+                    try
                     {
+                        // Reception de la requête demande client envoyé..
+                        client = server.AcceptTcpClient();
+                        data = null;
+                        // Lecture du contenu envoyé
+                        NetworkStream writeStream = client.GetStream();
+                        stream = client.GetStream();
+                        byte[] buffer = new byte[1024];
+                        stream.Read(buffer, 0, buffer.Length);
+                        int recv = 0;
+                        data = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
                         stream.Flush();
-                        while(i == 0)
-                        {
-                            i = stream.Read(bytes, 0, bytes.Length);
-                        }
-                        // 1 - Recevoir l'attaque ennemie
-                        // transcrit les bytes envoyé en string.
-                        data = System.Text.Encoding.ASCII.GetString(bytes, 0, i);
+
                         // Parser l'attaque en coordonnées tableau
                         Program.playerInput = data;
-                        Console.WriteLine("Le client a envoyé le message suivant : " + Program.playerInput);
+                        Console.WriteLine("Received: " + Program.playerInput);
                         // Convertit l'attaque en coordonnées tableau, modifie le tableau et renvoie le message du résultat de l'attaque ennemi à envoyer au client
                         string message = Program.InputParser();
                         // 2 - Envoyer le message du résultat de l'attaque ennemi au client
                         // Envoi du message au client
-                        byte[] msg = System.Text.Encoding.ASCII.GetBytes(message);
-                        stream.Write(msg, 0, msg.Length);
-                        Console.WriteLine("Le serveur envoie le message suivant : " + message);
+                        Console.WriteLine("Sent: " + message);
 
                         // 3 - Saisir notre attaque
                         // Recevoir la saisie utilisateur
@@ -73,38 +80,42 @@ namespace Bataille_navale
                         // Envoi du string au client
 
                         message = Program.playerInput;
-                        msg = System.Text.Encoding.ASCII.GetBytes(message);
-                        stream.Write(msg, 0, msg.Length);
+                        Console.WriteLine("Sent: " + message);
+                        Program.playerInput = "";
                     }
-
-                    // Game over. On peux recommencer le jeu.
-                    while (true)
+                    catch
                     {
-                        Console.WriteLine("Fin de la partie. Voulez-vous rejouer? Ecrivez oui pour rejouer. Ecrivez non pour quitter.");
-                        string playerInput = Console.ReadLine();
-                        try
+
+                    }
+                }
+
+                // Game over. On peux recommencer le jeu.
+                while (true)
+                {
+                    Console.WriteLine("Fin de la partie. Voulez-vous rejouer? Ecrivez oui pour rejouer. Ecrivez non pour quitter.");
+                    string playerInput = Console.ReadLine();
+                    try
+                    {
+                        if (playerInput == "oui")
                         {
-                            if (playerInput == "oui")
-                            {
-                                Console.Clear();
-                                Program.Main(null);
-                            }
-                            if (playerInput == "non")
-                            {
-                                stream.Close();
-                                client.Close();
-                                break;
-                            }
+                            Console.Clear();
+                            Program.Main(null);
                         }
-                        catch
+                        if (playerInput == "non")
                         {
-                            Console.WriteLine("Commande invalide");
+                            stream.Close();
+                            client.Close();
+                            break;
                         }
                     }
-
-                    // Shutdown and end connection
-                    //client.Close();
+                    catch
+                    {
+                        Console.WriteLine("Commande invalide");
+                    }
                 }
+
+                // Shutdown and end connection
+                //client.Close();
             }
             catch (SocketException e)
             {

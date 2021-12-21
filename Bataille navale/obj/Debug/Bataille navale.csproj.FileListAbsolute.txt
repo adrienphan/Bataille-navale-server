@@ -20,3 +20,11 @@ C:\romain\LaManu\Bataille-navale-server\Bataille navale\obj\Debug\Bataille naval
 C:\romain\LaManu\Bataille-navale-server\Bataille navale\obj\Debug\Bataille navale.csproj.CoreCompileInputs.cache
 C:\romain\LaManu\Bataille-navale-server\Bataille navale\obj\Debug\Bataille navale.exe
 C:\romain\LaManu\Bataille-navale-server\Bataille navale\obj\Debug\Bataille navale.pdb
+C:\Users\arthu\Documents\Cours\Lamanu\Git\Bataille-navale-server\Bataille navale\bin\Debug\Bataille navale.exe.config
+C:\Users\arthu\Documents\Cours\Lamanu\Git\Bataille-navale-server\Bataille navale\bin\Debug\Bataille navale.exe
+C:\Users\arthu\Documents\Cours\Lamanu\Git\Bataille-navale-server\Bataille navale\bin\Debug\Bataille navale.pdb
+C:\Users\arthu\Documents\Cours\Lamanu\Git\Bataille-navale-server\Bataille navale\obj\Debug\Bataille navale.csproj.AssemblyReference.cache
+C:\Users\arthu\Documents\Cours\Lamanu\Git\Bataille-navale-server\Bataille navale\obj\Debug\Bataille navale.csproj.SuggestedBindingRedirects.cache
+C:\Users\arthu\Documents\Cours\Lamanu\Git\Bataille-navale-server\Bataille navale\obj\Debug\Bataille navale.csproj.CoreCompileInputs.cache
+C:\Users\arthu\Documents\Cours\Lamanu\Git\Bataille-navale-server\Bataille navale\obj\Debug\Bataille navale.exe
+C:\Users\arthu\Documents\Cours\Lamanu\Git\Bataille-navale-server\Bataille navale\obj\Debug\Bataille navale.pdb
