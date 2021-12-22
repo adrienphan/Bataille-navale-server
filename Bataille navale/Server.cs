@@ -19,7 +19,7 @@ namespace Bataille_navale
             {
                 // Création des variables contenant le port et l'adresse IP que le server doit écouter.
                 Int32 port = 13000;
-                IPAddress localAddr = IPAddress.Parse("127.0.0.1");
+                IPAddress localAddr = IPAddress.Parse("192.168.1.33");
                 // Création d'un objet TcpListener avec en paramétre le port et l'adresse IP
                 server = new TcpListener(localAddr, port);
                 // Ouverture du serveur.
@@ -41,7 +41,7 @@ namespace Bataille_navale
 
                 // Lancement de la boucle d'écoute 
                 // Boucle sur de jeu. Commence par la lecture d'une attaque par le client
-                while (Program.playerHealth > 0)
+                while (true)
                 {
                     try
                     {
@@ -51,21 +51,45 @@ namespace Bataille_navale
                         // Lecture du contenu envoyé
                         NetworkStream writeStream = client.GetStream();
                         stream = client.GetStream();
-                        byte[] buffer = new byte[1024];
+                        byte[] buffer = new byte[256];
                         stream.Read(buffer, 0, buffer.Length);
                         int recv = 0;
-                        data = Encoding.UTF8.GetString(buffer, 0, buffer.Length);
+                        foreach (byte b in buffer)
+                        {
+                            if (b != 0)
+                            {
+                                recv++;
+                            }
+                        }
+                       
+                        data = Encoding.UTF8.GetString(buffer, 0, recv);
                         stream.Flush();
 
                         // Parser l'attaque en coordonnées tableau
                         Program.playerInput = data;
                         Console.WriteLine("Received: " + Program.playerInput);
+                        if (Program.playerInput.Contains("Game Over"))
+                        {
+                            Console.WriteLine("Bravo, vous avez gagné!!");
+                            Program.GameOver();
+                            break;
+                        }
                         // Convertit l'attaque en coordonnées tableau, modifie le tableau et renvoie le message du résultat de l'attaque ennemi à envoyer au client
                         string message = Program.InputParser();
                         // 2 - Envoyer le message du résultat de l'attaque ennemi au client
                         // Envoi du message au client
+                        if (Program.playerHealth == 0)
+                        {
+                            Console.WriteLine("Sent: Game Over");
+                            Byte[] sendGOMsg = System.Text.Encoding.ASCII.GetBytes(message);
+                            stream.Write(sendGOMsg, 0, sendGOMsg.Length);
+                            Console.WriteLine("Vous avez perdu!");
+                            Program.GameOver();
+                            break;
+                        }
                         Console.WriteLine("Sent: " + message);
-
+                        Byte[] sendMsg = System.Text.Encoding.ASCII.GetBytes(message);                       
+                        stream.Write(sendMsg,0,sendMsg.Length);
                         // 3 - Saisir notre attaque
                         // Recevoir la saisie utilisateur
                         // Boucle de vérification de validité de la saisie. Sinon, on revient à l'étape précédente
@@ -81,6 +105,8 @@ namespace Bataille_navale
 
                         message = Program.playerInput;
                         Console.WriteLine("Sent: " + message);
+                        Byte[] sendAtk = System.Text.Encoding.ASCII.GetBytes(message);                       
+                        stream.Write(sendAtk, 0, sendAtk.Length);
                         Program.playerInput = "";
                     }
                     catch
@@ -89,30 +115,7 @@ namespace Bataille_navale
                     }
                 }
 
-                // Game over. On peux recommencer le jeu.
-                while (true)
-                {
-                    Console.WriteLine("Fin de la partie. Voulez-vous rejouer? Ecrivez oui pour rejouer. Ecrivez non pour quitter.");
-                    string playerInput = Console.ReadLine();
-                    try
-                    {
-                        if (playerInput == "oui")
-                        {
-                            Console.Clear();
-                            Program.Main(null);
-                        }
-                        if (playerInput == "non")
-                        {
-                            stream.Close();
-                            client.Close();
-                            break;
-                        }
-                    }
-                    catch
-                    {
-                        Console.WriteLine("Commande invalide");
-                    }
-                }
+               
 
                 // Shutdown and end connection
                 //client.Close();

@@ -31,8 +31,7 @@ namespace ConsoleApplication1
         {
             return (int)charToUnicode - (int)'A';
         }
-
-
+        //Creation des bateaux.
         public static void Init()
         {
             boats.Add("carrier", 5);
@@ -42,7 +41,7 @@ namespace ConsoleApplication1
             boats.Add("destroyer", 2);
             playerHealth = boats.Sum(x => x.Value);
         }
-
+        //Positionnement des bateaux sur la carte
         public static void DebugInit()
         {
             battleMap[1, 1] = "carrier";
@@ -61,17 +60,17 @@ namespace ConsoleApplication1
             battleMap[6, 4] = "submarine";
             battleMap[7, 4] = "submarine";
             battleMap[8, 8] = "destroyer";
-            battleMap[8, 9] = "destroyer";
-         
+            battleMap[8, 9] = "destroyer";       
         }
+        //Vérifie que la saisie de la position d'attaque soit correcte.
         public static bool InputCheck()
         {
+            //Récupére la colonne et la ligne d'attaque.
             linePosition = playerInput.Substring(0, 1/*EXCLU*/);
             columnPosition = playerInput.Substring(1);
-
+            //Création de deux expressions régulière pour vérifier la saisie. 
             Regex longitudeCheck = new Regex(@"^[A-J]+$");
-            Regex latitudeCheck = new Regex(@"^[0-9]+$");
-           
+            Regex latitudeCheck = new Regex(@"^[0-9]+$");          
                 // Verifier la validité de la ligne
                 if (!longitudeCheck.IsMatch(linePosition))
                 {
@@ -85,9 +84,9 @@ namespace ConsoleApplication1
                     Console.WriteLine("Le chiffre de la colonne n'est pas valide");
                     return false;
                 }
-
             return true;
         }
+        //Transforme les variables de position d'attaque en entier et les envoie à la fonction CheckAtk().
         public static string InputParser() 
         {
             linePosition = playerInput.Substring(0, 1/*EXCLU*/);
@@ -97,11 +96,10 @@ namespace ConsoleApplication1
             message = CheckAtk(longitudeShot, latitudeShot);
             return message;
         }
-
+        //
         public static string CheckAtk(int longitudeShot, int latitudeShot)
         {
-            string message = "";
-            
+            string message = "";           
             // Attaque de l'adversaire
             if (battleMap[longitudeShot, latitudeShot] == null)
             {
@@ -117,14 +115,15 @@ namespace ConsoleApplication1
             }
             else if (battleMap[longitudeShot, latitudeShot] != null)
             {
+                playerHealth--;
                 //Console.WriteLine(battleMap[longitudeShot, latitudeShot]);
-
                 //Console.WriteLine($"Le bateau de type {battleMap[longitudeShot, latitudeShot].ToString()} a été touché en {playerInput}");
                 boats[battleMap[longitudeShot, latitudeShot]] -= 1;
                 if (boats[battleMap[longitudeShot, latitudeShot]] == 0)
                 {
                     battleMap[longitudeShot, latitudeShot] = "Touché";
                     message = "Touché. Coulé.";
+                    message = checkHealth(message);
                     return message;
                     //Console.WriteLine("Touché. Coulé.");
                 }
@@ -132,11 +131,48 @@ namespace ConsoleApplication1
                 {
                     battleMap[longitudeShot, latitudeShot] = "Touché";
                     message = "Touché";
+                    message = checkHealth(message);
                     return message;                  
                 }
                 
             }
+            
             return null;
+        }
+        public static string checkHealth(string message)
+        {
+            if (playerHealth == 0)
+            {
+                message = "Game Over";
+            }
+            return message;
+        }
+         public static void GameOver()
+        {
+
+            // Game over. On peux recommencer le jeu.
+            while (true)
+            {
+                Console.WriteLine("Fin de la partie. Voulez-vous rejouer? Ecrivez oui pour rejouer. Ecrivez non pour quitter.");
+                string playerInput = Console.ReadLine();
+                try
+                {
+                    if (playerInput == "oui")
+                    {
+                        Console.Clear();
+                        Program.Main(null);
+                    }
+                    if (playerInput == "non")
+                    {
+                        
+                        break;
+                    }
+                }
+                catch
+                {
+                    Console.WriteLine("Commande invalide");
+                }
+            }
         }
     }
 }
